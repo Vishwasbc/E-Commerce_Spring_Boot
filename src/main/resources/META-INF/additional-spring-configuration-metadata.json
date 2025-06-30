@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "spring.app.jwtExpirationMs",
+    "type": "java.lang.String",
+    "description": "JWT token Expiration Time'"
+  },
+  {
+    "name": "spring.app.jwtSecret",
+    "type": "java.lang.String",
+    "description": "Secret Key for JWT generation'"
+  },
+]}
