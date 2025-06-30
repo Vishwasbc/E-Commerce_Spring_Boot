@@ -1,5 +1,6 @@
 package com.ecommerce.service;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -87,6 +88,16 @@ public class CartServiceImpl implements CartService {
 		}).toList();
 		cartDTO.setProducts(products);
 		return cartDTO;
+	}
+
+	@Override
+	public List<CartDTO> getAllCarts() {
+		List<Cart> carts = cartRepository.findAll();
+		if(carts.size()==0) {
+			throw new APIException("No Carts Exist");
+		}
+		
+		return Collections.emptyList();
 	}
 
 }
