@@ -1,11 +1,10 @@
 package com.ecommerce.repository;
 
-import java.util.Optional;
-
+import com.ecommerce.model.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.ecommerce.model.Category;
+import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<Category, Long>{
-	public Optional<Category> findByCategoryName(String categoryName);
+	Optional<Category> findByCategoryName(String categoryName);
 }

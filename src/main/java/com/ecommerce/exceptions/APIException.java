@@ -1,13 +1,15 @@
 package com.ecommerce.exceptions;
 
+import lombok.NoArgsConstructor;
+
+import java.io.Serial;
+
+@NoArgsConstructor
 public class APIException extends RuntimeException{
-	private static final long serialVersionUID = 1L;
+	@Serial
+    private static final long serialVersionUID = 1L;
 
-	public APIException() {
-		
-	}
-
-	public APIException(String message) {
+    public APIException(String message) {
 		super(message);
 	}
 	

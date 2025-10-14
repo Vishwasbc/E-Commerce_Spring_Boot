@@ -1,27 +1,5 @@
 package com.ecommerce.controller;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.ecommerce.model.AppRole;
 import com.ecommerce.model.Role;
 import com.ecommerce.model.User;
@@ -33,9 +11,22 @@ import com.ecommerce.security.request.SignUpRequest;
 import com.ecommerce.security.response.MessageResponse;
 import com.ecommerce.security.response.UserInfoResponse;
 import com.ecommerce.security.service.CustomUserDetails;
-
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
 
 @RestController
 @AllArgsConstructor
@@ -47,7 +38,7 @@ public class AuthController {
 	private PasswordEncoder passwordEncoder;
 	private RoleRepository roleRepository;
 
-	@PostMapping("/signin")
+	@PostMapping("/sign-in")
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 		Authentication authentication;
 		try {
@@ -62,7 +53,7 @@ public class AuthController {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 		ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
-		List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority()).toList();
+		List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
 		UserInfoResponse response = new UserInfoResponse(userDetails.getId(), userDetails.getUsername(), roles);
 		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString()).body(response);
 	}
@@ -119,7 +110,7 @@ public class AuthController {
 	@GetMapping("/user")
 	public ResponseEntity<UserInfoResponse> getUserDetails(Authentication authentication) {
 		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-		List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority()).toList();
+		List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
 		UserInfoResponse response = new UserInfoResponse(userDetails.getId(), userDetails.getUsername(), roles);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}

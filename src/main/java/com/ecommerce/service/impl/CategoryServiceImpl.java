@@ -1,13 +1,4 @@
-package com.ecommerce.service;
-
-import java.util.List;
-
-import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
+package com.ecommerce.service.impl;
 
 import com.ecommerce.exceptions.APIException;
 import com.ecommerce.exceptions.ResourceNotFoundException;
@@ -15,16 +6,26 @@ import com.ecommerce.model.Category;
 import com.ecommerce.payload.CategoryDTO;
 import com.ecommerce.payload.CategoryResponse;
 import com.ecommerce.repository.CategoryRepository;
+import com.ecommerce.service.CategoryService;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import lombok.AllArgsConstructor;
+import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
+@Transactional
 public class CategoryServiceImpl implements CategoryService {
 
-	private CategoryRepository categoryRepository;
+	private final CategoryRepository categoryRepository;
 
-	private ModelMapper modelMapper;
+	private final ModelMapper modelMapper;
 
 	@Override
 	public CategoryResponse getAllCategories(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
@@ -35,7 +36,7 @@ public class CategoryServiceImpl implements CategoryService {
 		Page<Category> categoryPage = categoryRepository.findAll(pageDetails);
 		List<Category> allCategories = categoryPage.getContent();
 		if (allCategories.isEmpty())
-			throw new APIException("No Avaliable Categories");
+			throw new APIException("No Available Categories");
 		List<CategoryDTO> categoryDTOs = allCategories.stream()
 				.map(category -> modelMapper.map(category, CategoryDTO.class)).toList();
 		return new CategoryResponse(categoryDTOs, categoryPage.getNumber(), categoryPage.getSize(),

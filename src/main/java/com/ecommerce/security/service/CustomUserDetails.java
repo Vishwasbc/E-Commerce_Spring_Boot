@@ -1,27 +1,27 @@
 package com.ecommerce.security.service;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
+import com.ecommerce.model.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.ecommerce.model.User;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.io.Serial;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor
 @Data
 @AllArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
-	private static final long serialVersionUID = 1L;
+	@Serial
+    private static final long serialVersionUID = 1L;
 	private Long id;
 	private String username;
 	private String email;
@@ -43,19 +43,16 @@ public class CustomUserDetails implements UserDetails {
 
 	@Override
 	public boolean isAccountNonExpired() {
-
 		return true;
 	}
 
 	@Override
 	public boolean isAccountNonLocked() {
-
 		return true;
 	}
 
 	@Override
 	public boolean isCredentialsNonExpired() {
-
 		return true;
 	}
 

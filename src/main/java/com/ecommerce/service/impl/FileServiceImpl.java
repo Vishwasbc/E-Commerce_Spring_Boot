@@ -1,15 +1,15 @@
-package com.ecommerce.service;
+package com.ecommerce.service.impl;
+
+import com.ecommerce.exceptions.APIException;
+import com.ecommerce.service.FileService;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
-
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.ecommerce.exceptions.APIException;
 
 @Service
 public class FileServiceImpl implements FileService {

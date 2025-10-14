@@ -1,15 +1,19 @@
 package com.ecommerce.exceptions;
 
+import lombok.NoArgsConstructor;
+
+import java.io.Serial;
+
+@NoArgsConstructor
 public class ResourceNotFoundException extends RuntimeException{
-	private static final long serialVersionUID = 9162283598759358845L;
+	@Serial
+    private static final long serialVersionUID = 9162283598759358845L;
 	String resourceName;
 	String field;
 	String fieldName;
 	Long fieldId;
-	public ResourceNotFoundException() {
-		
-	}
-	public ResourceNotFoundException(String resourceName,String field,String fieldName) {
+
+    public ResourceNotFoundException(String resourceName,String field,String fieldName) {
 		super(String.format("%s not found with %s : %s",resourceName,field,fieldName));
 		this.resourceName=resourceName;
 		this.field=field;

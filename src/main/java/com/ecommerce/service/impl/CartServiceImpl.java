@@ -1,10 +1,4 @@
-package com.ecommerce.service;
-
-import java.util.Collections;
-import java.util.List;
-
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Service;
+package com.ecommerce.service.impl;
 
 import com.ecommerce.exceptions.APIException;
 import com.ecommerce.exceptions.ResourceNotFoundException;
@@ -16,20 +10,27 @@ import com.ecommerce.payload.ProductDTO;
 import com.ecommerce.repository.CartItemRepository;
 import com.ecommerce.repository.CartRepository;
 import com.ecommerce.repository.ProductRepository;
-import com.ecommerce.util.AuthUtil;
-
-import lombok.AllArgsConstructor;
+import com.ecommerce.service.CartService;
+import com.ecommerce.utility.AuthUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class CartServiceImpl implements CartService {
-	CartRepository cartRepository;
-	AuthUtil authUtil;
-	ProductRepository productRepository;
-	CartItemRepository cartItemRepository;
-	ModelMapper modelMapper;
+	private final CartRepository cartRepository;
+	private final AuthUtil authUtil;
+	private final ProductRepository productRepository;
+	private final CartItemRepository cartItemRepository;
+	private final ModelMapper modelMapper;
 
 	private Cart createCart() {
 		Cart userCart = cartRepository.findCartByEmail(authUtil.loggedInEmail());
@@ -93,7 +94,7 @@ public class CartServiceImpl implements CartService {
 	@Override
 	public List<CartDTO> getAllCarts() {
 		List<Cart> carts = cartRepository.findAll();
-		if(carts.size()==0) {
+		if(carts.isEmpty()) {
 			throw new APIException("No Carts Exist");
 		}
 		

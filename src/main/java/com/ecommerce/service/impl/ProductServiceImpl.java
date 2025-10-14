@@ -1,15 +1,4 @@
-package com.ecommerce.service;
-
-import java.io.IOException;
-import java.util.List;
-
-import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+package com.ecommerce.service.impl;
 
 import com.ecommerce.config.AppConstants;
 import com.ecommerce.exceptions.APIException;
@@ -20,16 +9,29 @@ import com.ecommerce.payload.ProductDTO;
 import com.ecommerce.payload.ProductResponse;
 import com.ecommerce.repository.CategoryRepository;
 import com.ecommerce.repository.ProductRepository;
+import com.ecommerce.service.FileService;
+import com.ecommerce.service.ProductService;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import lombok.AllArgsConstructor;
+import java.io.IOException;
+import java.util.List;
 
 @Service
-@AllArgsConstructor
+@Transactional
+@RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
-	private CategoryRepository categoryRepository;
-	private ProductRepository productRepository;
-	private ModelMapper modelMapper;
-	private FileService fileService;
+	private final CategoryRepository categoryRepository;
+	private final ProductRepository productRepository;
+	private final ModelMapper modelMapper;
+	private final FileService fileService;
 
 	@Override
 	public ProductDTO addProduct(ProductDTO productDTO, Long categoryId) {

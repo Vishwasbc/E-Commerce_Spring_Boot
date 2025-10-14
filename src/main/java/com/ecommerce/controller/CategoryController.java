@@ -37,8 +37,8 @@ public class CategoryController {
 	}
 
 	@PostMapping("/public/categories")
-	// @Valid is Added so that the Validation constraints maybe handled in a more
-	// user friendly manner.
+	/* @Valid is Added so that the Validation constraints maybe handled in a more
+	 user-friendly manner.*/
 	public ResponseEntity<CategoryDTO> addCategory(@Valid @RequestBody CategoryDTO category) {
 		CategoryDTO categoryDTO = categoryService.createCategory(category);
 		return new ResponseEntity<>(categoryDTO, HttpStatus.CREATED);

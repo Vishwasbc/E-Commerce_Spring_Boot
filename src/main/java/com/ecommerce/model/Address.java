@@ -1,20 +1,15 @@
 package com.ecommerce.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "addresses")
@@ -26,22 +21,22 @@ public class Address {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long addressId;
 	@NotBlank
-	@Size(min = 5, message = "Street name should be atleast 5 Charaters")
+	@Size(min = 5, message = "Street name should be at least 5 Characters")
 	private String street;
 	@NotBlank
-	@Size(min = 5, message = "Building name should be atleast 5 Charaters")
+	@Size(min = 5, message = "Building name should be at least 5 Characters")
 	private String buildingName;
 	@NotBlank
-	@Size(min = 4, message = "City name should be atleast 4 Charaters")
+	@Size(min = 4, message = "City name should be at least 4 Characters")
 	private String city;
 	@NotBlank
-	@Size(min = 2, message = "State name should be atleast 2 Charaters")
+	@Size(min = 2, message = "State name should be at least 2 Characters")
 	private String state;
 	@NotBlank
-	@Size(min = 5, message = "Country name should be atleast 5 Charaters")
+	@Size(min = 5, message = "Country name should be at least 5 Characters")
 	private String country;
 	@NotBlank
-	@Size(min = 6, message = "Pin-Code name should be atleast 6 Charaters")
+	@Size(min = 6, message = "Pin-Code name should be at least 6 Characters")
 	private String pinCode;
 	@ToString.Exclude
 	@ManyToMany(mappedBy = "addresses")
