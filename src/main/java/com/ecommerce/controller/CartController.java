@@ -13,16 +13,17 @@ import java.util.List;
 @RequestMapping("/api")
 @AllArgsConstructor
 public class CartController {
-	CartService cartService;
-	@PostMapping("/carts/products/{productId}/quantity/{quantity}")
-	public ResponseEntity<CartDTO> addProductToCart(@PathVariable Long productId,@PathVariable Integer quantity){
-		CartDTO cartDTO = cartService.addProductToCart(productId,quantity);
-		return new ResponseEntity<>(cartDTO,HttpStatus.CREATED);
-	}
+    CartService cartService;
+
+    @PostMapping("/carts/products/{productId}/quantity/{quantity}")
+    public ResponseEntity<CartDTO> addProductToCart(@PathVariable Long productId, @PathVariable Integer quantity) {
+        CartDTO cartDTO = cartService.addProductToCart(productId, quantity);
+        return new ResponseEntity<>(cartDTO, HttpStatus.CREATED);
+    }
 
     @GetMapping
-	public ResponseEntity<List<CartDTO>> getAllCarts(){
-		List<CartDTO> cartDTOs = cartService.getAllCarts();
-		return new ResponseEntity<>(cartDTOs,HttpStatus.FOUND);
-	}
+    public ResponseEntity<List<CartDTO>> getAllCarts() {
+        List<CartDTO> cartDTOs = cartService.getAllCarts();
+        return new ResponseEntity<>(cartDTOs, HttpStatus.FOUND);
+    }
 }

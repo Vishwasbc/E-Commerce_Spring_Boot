@@ -29,60 +29,62 @@ import lombok.ToString;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "users",uniqueConstraints = {
-		@UniqueConstraint(columnNames = "username"),
-		@UniqueConstraint(columnNames = "email")
+@Table(name = "users", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "username"),
+        @UniqueConstraint(columnNames = "email")
 })
 public class User {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	@NotBlank
-	@Size(min = 5, max = 50)
-	private String username;
-	@Email
-	private String email;
-	@NotBlank
-	private String password;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @NotBlank
+    @Size(min = 5, max = 50)
+    private String username;
+    @Email
+    private String email;
+    @NotBlank
+    private String password;
 
-	@ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
-	@JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-	private Set<Role> roles = new HashSet<>();
-	
-	public User(Long id, @NotBlank @Size(min = 5, max = 50) String username, @Email String email,
-			@NotBlank String password, Set<Role> roles, Set<Product> products) {
-		super();
-		this.id = id;
-		this.username = username;
-		this.email = email;
-		this.password = password;
-		this.roles = roles;
-		this.products = products;
-	}
-	public User(@NotBlank @Size(min = 5, max = 50) String username, @Email String email, @NotBlank String password,
-			Set<Role> roles) {
-		super();
-		this.username = username;
-		this.email = email;
-		this.password = password;
-		this.roles = roles;
-	}
-	@ToString.Exclude
-	@OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE,CascadeType.PERSIST},orphanRemoval = true)
-	private Set<Product> products;
-	
-	@ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
-	@JoinTable(name = "user_address",joinColumns = @JoinColumn(name="user_id"),inverseJoinColumns = @JoinColumn(name="address_id"))
-	public List<Address> addresses;
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 
-	public User(@NotBlank @Size(min = 5, max = 50) String username, @Email String email, @NotBlank String password) {
-		super();
-		this.username = username;
-		this.email = email;
-		this.password = password;
-	}
-	
-	@ToString.Exclude
-	@OneToOne(mappedBy = "user",cascade = {CascadeType.PERSIST,CascadeType.MERGE},orphanRemoval = true)
-	private Cart cart;
+    public User(Long id, @NotBlank @Size(min = 5, max = 50) String username, @Email String email,
+                @NotBlank String password, Set<Role> roles, Set<Product> products) {
+        super();
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.roles = roles;
+        this.products = products;
+    }
+
+    public User(@NotBlank @Size(min = 5, max = 50) String username, @Email String email, @NotBlank String password,
+                Set<Role> roles) {
+        super();
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.roles = roles;
+    }
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
+    private Set<Product> products;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "user_address", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "address_id"))
+    public List<Address> addresses;
+
+    public User(@NotBlank @Size(min = 5, max = 50) String username, @Email String email, @NotBlank String password) {
+        super();
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
+
+    @ToString.Exclude
+    @OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+    private Cart cart;
 }

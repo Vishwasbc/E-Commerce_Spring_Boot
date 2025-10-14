@@ -8,20 +8,20 @@ import java.io.IOException;
 
 public interface ProductService {
 
-	ProductDTO addProduct(ProductDTO productDTO, Long categoryId);
+    ProductDTO addProduct(ProductDTO productDTO, Long categoryId);
 
-	ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
+    ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
-	ProductResponse searchByCategory(Long categoryId, Integer pageNumber, Integer pageSize, String sortBy,
+    ProductResponse searchByCategory(Long categoryId, Integer pageNumber, Integer pageSize, String sortBy,
                                      String sortOrder);
 
     ProductResponse searchByKeyword(String keyword, Integer pageNumber, Integer pageSize, String sortBy,
-			String sortOrder);
+                                    String sortOrder);
 
-	ProductDTO updateProduct(ProductDTO productDTO, Long productId);
+    ProductDTO updateProduct(ProductDTO productDTO, Long productId);
 
-	String deleteProduct(Long productId);
+    String deleteProduct(Long productId);
 
-	ProductDTO updateProductImage(Long productId, MultipartFile image) throws IOException;
+    ProductDTO updateProductImage(Long productId, MultipartFile image) throws IOException;
 
 }

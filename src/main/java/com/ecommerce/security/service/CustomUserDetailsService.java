@@ -14,14 +14,14 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
-	private UserRepository userRepository;
+    private UserRepository userRepository;
 
-	@Override
-	@Transactional
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = userRepository.findByUsername(username)
-				.orElseThrow(() -> new UsernameNotFoundException("User with username:"+username+" not found"));
-		return CustomUserDetails.build(user);
-	}
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User with username:" + username + " not found"));
+        return CustomUserDetails.build(user);
+    }
 
 }

@@ -11,10 +11,10 @@ import com.ecommerce.model.Product;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-	Page<Product> findByCategoryOrderByPriceAsc(Category category,Pageable page);
+    Page<Product> findByCategoryOrderByPriceAsc(Category category, Pageable page);
 
-	Page<Product> findByProductNameLikeIgnoreCase(String string,Pageable page);
-	
-	Optional<Product> findByProductName(String productName);
+    Page<Product> findByProductNameLikeIgnoreCase(String string, Pageable page);
+
+    Optional<Product> findByProductName(String productName);
 
 }

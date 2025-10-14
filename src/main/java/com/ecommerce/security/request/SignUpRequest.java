@@ -9,15 +9,15 @@ import lombok.Data;
 
 @Data
 public class SignUpRequest {
-	@NotBlank
-	@Size(min = 3, max = 20)
-	private String username;
-	@NotBlank
-	@Size(max = 50)
-	@Email
-	private String email;
-	@NotBlank
-	@Size(min = 8, max = 20)
-	private String password;
-	private Set<String> role;
+    @NotBlank
+    @Size(min = 3, max = 20)
+    private String username;
+    @NotBlank
+    @Size(max = 50)
+    @Email
+    private String email;
+    @NotBlank
+    @Size(min = 8, max = 20)
+    private String password;
+    private Set<String> role;
 }

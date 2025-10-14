@@ -19,17 +19,18 @@ import lombok.ToString;
 @Data
 @Table(name = "roles")
 public class Role {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "role_id")
-	private Long id;
-	@ToString.Exclude
-	@Column(length = 20,name = "role_name")
-	@Enumerated(EnumType.STRING)//to persist tha data as a string and not as an Integer/Ordinal
-	private AppRole roleName;
-	public Role(AppRole roleName) {
-		super();
-		this.roleName = roleName;
-	}
-	
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "role_id")
+    private Long id;
+    @ToString.Exclude
+    @Column(length = 20, name = "role_name")
+    @Enumerated(EnumType.STRING)//to persist tha data as a string and not as an Integer/Ordinal
+    private AppRole roleName;
+
+    public Role(AppRole roleName) {
+        super();
+        this.roleName = roleName;
+    }
+
 }
