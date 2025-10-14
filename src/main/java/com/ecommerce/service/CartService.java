@@ -1,8 +1,8 @@
 package com.ecommerce.service;
 
-import java.util.List;
-
 import com.ecommerce.payload.CartDTO;
+
+import java.util.List;
 
 public interface CartService {
 
@@ -10,4 +10,5 @@ public interface CartService {
 
     List<CartDTO> getAllCarts();
 
+    CartDTO getCart(String emailId, Long cartId);
 }
