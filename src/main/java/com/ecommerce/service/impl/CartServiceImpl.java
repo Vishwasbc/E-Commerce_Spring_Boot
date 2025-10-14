@@ -15,9 +15,11 @@ import com.ecommerce.utility.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,16 +48,22 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartDTO addProductToCart(Long productId, Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new APIException("Quantity must be a positive integer");
+        }
+
         Cart cart = createCart();
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
 
-        CartItem cartItem = cartItemRepository.findCartItemByProductIdAndCartId(cart.getCartId(), productId);
-
-        if (cartItem != null) {
+        // Check duplicate in cart
+        CartItem existingItem = cartItemRepository.findCartItemByProductIdAndCartId(cart.getCartId(), productId);
+        if (existingItem != null) {
             throw new APIException("Product " + product.getProductName() + " already exists in the cart");
         }
+
+        // Stock validation
         if (product.getQuantity() == 0) {
             throw new APIException(product.getProductName() + " is not available");
         }
@@ -64,6 +72,11 @@ public class CartServiceImpl implements CartService {
                     + " less than or equal to the quantity " + product.getQuantity() + ".");
         }
 
+        // Decrement stock and persist
+        product.setQuantity(product.getQuantity() - quantity);
+        productRepository.save(product);
+
+        // Create cart item
         CartItem newCartItem = new CartItem();
         newCartItem.setProduct(product);
         newCartItem.setCart(cart);
@@ -71,23 +84,34 @@ public class CartServiceImpl implements CartService {
         newCartItem.setDiscount(product.getDiscount());
         newCartItem.setProductPrice(product.getSpecialPrice());
 
+        try {
+            cartItemRepository.save(newCartItem);
+        } catch (DataIntegrityViolationException ex) {
+            throw new APIException("Product " + product.getProductName() + " could not be added to cart due to concurrent modification");
+        }
+
+        // Ensure in-memory cart reflects the new item for DTO mapping
         cart.getCartItems().add(newCartItem);
-        cartItemRepository.save(newCartItem);
 
-        product.setQuantity(product.getQuantity() - quantity);
-        productRepository.save(product);
+        // Recalculate cart total deterministically using BigDecimal
+        BigDecimal total = cart.getCartItems().stream()
+                .map(ci -> BigDecimal.valueOf(ci.getProductPrice()).multiply(BigDecimal.valueOf(ci.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        cart.setTotalPrice(total.doubleValue());
 
-        cart.setTotalPrice(cart.getTotalPrice() + (product.getSpecialPrice() * quantity));
         Cart savedCart = cartRepository.save(cart);
 
+        // Map to DTO without mutating domain entities
         CartDTO cartDTO = modelMapper.map(savedCart, CartDTO.class);
-
-        List<ProductDTO> products = savedCart.getCartItems().stream().map(item -> {
-            ProductDTO dto = modelMapper.map(item.getProduct(), ProductDTO.class);
-            dto.setQuantity(item.getQuantity());
-            return dto;
-        }).toList();
+        List<ProductDTO> products = savedCart.getCartItems().stream()
+                .map(item -> {
+                    ProductDTO dto = modelMapper.map(item.getProduct(), ProductDTO.class);
+                    dto.setQuantity(item.getQuantity()); // ordered quantity
+                    return dto;
+                })
+                .collect(Collectors.toList());
         cartDTO.setProducts(products);
+
         return cartDTO;
     }
 
@@ -101,28 +125,36 @@ public class CartServiceImpl implements CartService {
                 .map(cart -> {
                     CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
                     List<ProductDTO> products = cart.getCartItems().stream()
-                            .map(product -> modelMapper.map(product.getProduct(), ProductDTO.class))
+                            .map(ci -> {
+                                ProductDTO productDTO = modelMapper.map(ci.getProduct(), ProductDTO.class);
+                                productDTO.setQuantity(ci.getQuantity());
+                                return productDTO;
+                            })
                             .collect(Collectors.toList());
                     cartDTO.setProducts(products);
                     return cartDTO;
-                }).toList();
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CartDTO getCart(String emailId, Long cartId) {
-        Cart cart = cartRepository.findCartByEmailAndCartId(emailId,cartId);
-        if(cart == null){
+        Cart cart = cartRepository.findCartByEmailAndCartId(emailId, cartId);
+        if (cart == null) {
             throw new ResourceNotFoundException("Cart", "cartId", cartId);
         }
-        CartDTO cartDTO = modelMapper.map(cart,CartDTO.class);
-//        cart.getCartItems().forEach(c->c.getProduct().setQuantity(c.getQuantity()));
-        log.info(String.valueOf(cart.getCartItems().getFirst().getProduct().getQuantity()));
+
+        // Map cart to DTO and build product DTOs using CartItem.quantity without mutating Product entity
+        CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
         List<ProductDTO> products = cart.getCartItems().stream()
-                .map(p->modelMapper.map(p.getProduct(),ProductDTO.class))
-                .toList();
-        log.info(String.valueOf(products.getFirst().getQuantity()));
+                .map(ci -> {
+                    ProductDTO dto = modelMapper.map(ci.getProduct(), ProductDTO.class);
+                    dto.setQuantity(ci.getQuantity()); // ordered quantity
+                    return dto;
+                })
+                .collect(Collectors.toList());
         cartDTO.setProducts(products);
         return cartDTO;
     }
-
 }
