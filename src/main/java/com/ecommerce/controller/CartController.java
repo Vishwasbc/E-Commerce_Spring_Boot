@@ -1,5 +1,6 @@
 package com.ecommerce.controller;
 
+import com.ecommerce.exceptions.ResourceNotFoundException;
 import com.ecommerce.model.Cart;
 import com.ecommerce.payload.CartDTO;
 import com.ecommerce.repository.CartRepository;
@@ -35,9 +36,34 @@ public class CartController {
     @GetMapping("/carts/users/cart")
     public ResponseEntity<CartDTO> getCartById() {
         String emailId = authUtil.loggedInEmail();
-        Cart cart = cartRepository.findCartByEmail(emailId);
+        Cart cart = cartRepository.findCartByEmail(emailId).orElse(null);
+        if (cart == null) {
+            throw new ResourceNotFoundException("Cart", "emailId", emailId);
+        }
         Long cartId = cart.getCartId();
         CartDTO cartDTO = cartService.getCart(emailId, cartId);
         return ResponseEntity.ok(cartDTO);
+    }
+
+
+    @PutMapping("/carts/product/{productId}/quantity/{operation}")
+    public ResponseEntity<CartDTO> updateCartProduct(@PathVariable Long productId, @PathVariable String operation) {
+        int delta;
+        if (operation.equalsIgnoreCase("delete")) {
+            delta = -1;
+        } else if (operation.equalsIgnoreCase("add")) {
+            delta = 1;
+        } else {
+            throw new IllegalArgumentException("Operation must be 'add' or 'delete'");
+        }
+        CartDTO cartDTO = cartService.updateProductQuantityInCart(productId, delta);
+        return ResponseEntity.ok(cartDTO);
+    }
+
+    @DeleteMapping("/carts/{cartId}/product/{productId}")
+    public ResponseEntity<String> deleteProductFromCart(@PathVariable Long cartId,
+                                                        @PathVariable Long productId) {
+        String status = cartService.deleteProductFromCart(cartId, productId);
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 }
