@@ -36,7 +36,7 @@ public class CartController {
     @GetMapping("/carts/users/cart")
     public ResponseEntity<CartDTO> getCartById() {
         String emailId = authUtil.loggedInEmail();
-        Cart cart = cartRepository.findCartByEmail(emailId).orElse(null);
+        Cart cart = cartRepository.findCartByEmail(emailId);
         if (cart == null) {
             throw new ResourceNotFoundException("Cart", "emailId", emailId);
         }
