@@ -191,8 +191,6 @@ public class CartServiceImpl implements CartService {
             prd.setQuantity(item.getQuantity());
             return prd;
         });
-
-
         cartDTO.setProducts(productStream.toList());
 
         return cartDTO;
