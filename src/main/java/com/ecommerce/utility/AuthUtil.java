@@ -1,5 +1,6 @@
 package com.ecommerce.utility;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,10 +11,10 @@ import com.ecommerce.model.User;
 import com.ecommerce.repository.UserRepository;
 
 @Component
+@RequiredArgsConstructor
 public class AuthUtil {
 
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public String loggedInEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

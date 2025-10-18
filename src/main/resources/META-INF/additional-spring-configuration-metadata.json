@@ -8,5 +8,5 @@
     "name": "spring.app.jwtSecret",
     "type": "java.lang.String",
     "description": "Secret Key for JWT generation'"
-  },
+  }
 ]}
