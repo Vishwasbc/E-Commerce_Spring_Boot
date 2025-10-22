@@ -25,7 +25,7 @@ public class Order {
     @Column(nullable = false)
     private String email;
 
-    @OneToMany(mappedBy = "order",cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+    @OneToMany(mappedBy = "order", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<OrderItem> orderItems = new ArrayList<>();
 
     private LocalDate orderDate;
@@ -38,6 +38,6 @@ public class Order {
     private String status;
 
     @ManyToOne
-    @JoinColumn(name = "address_id")
+    @JoinColumn(name = "addressId")
     private Address address;
 }
