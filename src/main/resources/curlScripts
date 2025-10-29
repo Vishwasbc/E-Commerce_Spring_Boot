@@ -183,3 +183,17 @@ curl --location --request PUT 'http://localhost:8001/api/address/1' \
     "state": "Karnataka"
 }'
 
+Order API's
+
+Place Order
+curl --location 'http://localhost:8001/api/orders/users/payment?paymentMethod=Online' \
+--header 'Content-Type: application/json' \
+--header 'Cookie: SpringBootECom=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMSIsImlhdCI6MTc2MTc0ODMzMCwiZXhwIjoxNzYyMDQ4MzMwfQ.eeurkW5PjIAN0RvNWNaAHZSnh-3hg_8HjIQm3s4--OY' \
+--data '{
+    "addressId":"1",
+    "pgName":"Stripe",
+    "pgPaymentId":"pid_jhjasvhbvhjbahw1773bhjcJY6D3",
+    "pgStatus":"succeeded",
+    "pgResponseMessage":"Payment Successful"
+}'
+
