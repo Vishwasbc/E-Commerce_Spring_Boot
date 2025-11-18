@@ -2,6 +2,7 @@ package com.ecommerce.service.impl;
 
 import com.ecommerce.exceptions.APIException;
 import com.ecommerce.service.FileService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+@Lazy
 @Service
 public class FileServiceImpl implements FileService {
     @Override

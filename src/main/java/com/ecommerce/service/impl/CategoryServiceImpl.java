@@ -9,6 +9,7 @@ import com.ecommerce.repository.CategoryRepository;
 import com.ecommerce.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Lazy
 @Service
 @RequiredArgsConstructor
 @Transactional

@@ -15,12 +15,14 @@ import com.ecommerce.utility.AuthUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Lazy
 @Service
 @RequiredArgsConstructor
 public class CartServiceImpl implements CartService {

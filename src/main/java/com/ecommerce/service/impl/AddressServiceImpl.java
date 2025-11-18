@@ -10,10 +10,12 @@ import com.ecommerce.service.AddressService;
 import com.ecommerce.utility.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Lazy
 @Service
 @RequiredArgsConstructor
 public class AddressServiceImpl implements AddressService {
