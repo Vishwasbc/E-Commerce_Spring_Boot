@@ -17,6 +17,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 @Component
 @Slf4j
@@ -49,15 +50,32 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {
-            log.error("Cannot set user authentication: {}", e);
+            log.error("Cannot set user authentication: {}", e.getMessage());
         }
-
         filterChain.doFilter(request, response);
     }
 
     private String parseJwt(HttpServletRequest request) {
-        String jwt = jwtUtils.getJwtFromCookies(request);
-        log.debug("AuthTokenFilter.java: {}", jwt);
-        return jwt;
+
+        // Prefer cookie
+        String jwtFromCookies = jwtUtils.getJwtFromCookies(request);
+        if (StringUtils.hasText(jwtFromCookies)) {
+            String token = jwtFromCookies.trim();
+            // In some cases cookie value may include a "Bearer " prefix
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7).trim();
+            }
+            log.debug("JWT obtained from cookie for URI: {}", request.getRequestURI());
+            return token;
+        }
+
+        // Fallback to Authorization header (for Swagger )
+        String jwtFromHeader = jwtUtils.getJwtFromHeader(request);
+        if (StringUtils.hasText(jwtFromHeader)) {
+            log.debug("JWT obtained from Authorization header for URI: {}", request.getRequestURI());
+            return jwtFromHeader.trim();
+        }
+
+        return null;
     }
 }

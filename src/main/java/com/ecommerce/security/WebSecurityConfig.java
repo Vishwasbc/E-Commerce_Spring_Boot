@@ -8,35 +8,41 @@ import com.ecommerce.repository.UserRepository;
 import com.ecommerce.security.jwt.AuthEntryPointJwt;
 import com.ecommerce.security.jwt.AuthTokenFilter;
 import com.ecommerce.security.service.CustomUserDetailsService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Set;
 
 @Configuration
-@AllArgsConstructor
+@RequiredArgsConstructor
 @EnableWebSecurity
 public class WebSecurityConfig {
-    CustomUserDetailsService userDetailsService;
-    AuthEntryPointJwt unauthorizedHandler;
+    private final CustomUserDetailsService userDetailsService;
+    private final AuthEntryPointJwt unauthorizedHandler;
 
+    // Return the component-scanned AuthTokenFilter rather than constructing a new instance
     @Bean
-    AuthTokenFilter authenticationJwtTokenFilter() {
-        return new AuthTokenFilter();
+    AuthTokenFilter authenticationJwtTokenFilter(AuthTokenFilter filter) {
+        return filter;
     }
 
     @Bean
@@ -59,28 +65,46 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
+    public SecurityFilterChain filterChain(HttpSecurity http, AuthTokenFilter authTokenFilter) throws Exception {
+
+        http
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/v3/api-docs/**").permitAll().requestMatchers("/h2-console/**").permitAll()
-                        // .requestMatchers("/api/admin/**").permitAll()
-                        // .requestMatchers("/api/public/**").permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger/**").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/images/**").permitAll()
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/swagger-ui/**").permitAll().requestMatchers("/api/test/**").permitAll()
-                        .requestMatchers("/images/**").permitAll().anyRequest().authenticated());
+                        .requestMatchers("/api/test/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin));
 
-        http.authenticationProvider(authenticationProvider());
-        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin));
         return http.build();
     }
+
 
     @Bean
     WebSecurityCustomizer webSecurityCustomizer() {
         return (web -> web.ignoring().requestMatchers("/v2/api-docs", "/configuration/ui", "/swagger-resources/**",
                 "/configuration/security", "/swagger-ui.html", "/webjars/**"));
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOriginPattern("*");
+        configuration.addAllowedMethod("*");
+        configuration.addAllowedHeader("*");
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean

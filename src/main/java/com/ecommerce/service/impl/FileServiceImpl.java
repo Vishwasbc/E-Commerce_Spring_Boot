@@ -37,7 +37,10 @@ public class FileServiceImpl implements FileService {
         // check if path exists or create
         File folder = new File(imagePath);
         if (!folder.exists()) {
-            folder.mkdir();
+            boolean created = folder.mkdirs();
+            if (!created) {
+                throw new APIException("Failed to create directory for image upload: " + imagePath);
+            }
         }
         // upload to server
         Files.copy(file.getInputStream(), Paths.get(filePath));

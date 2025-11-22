@@ -1,12 +1,14 @@
 package com.ecommerce.security.jwt;
 
 import com.ecommerce.security.service.CustomUserDetails;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +17,6 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
-import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
 
@@ -37,26 +38,56 @@ public class JwtUtils {
         if (cookie != null) {
             return cookie.getValue();
         } else {
-            return "null";
+            return null;
+        }
+    }
+
+    //Change for Swagger
+    public String getJwtFromHeader(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        } else {
+            return null;
         }
     }
 
     public ResponseCookie generateJwtCookie(CustomUserDetails customUserDetails) {
         String jwt = generateTokenFromUsername(customUserDetails.getUsername());
-        return ResponseCookie.from(jwtCookie, jwt).path("/api").maxAge(24 * 60 * 60).httpOnly(false).build();
+        long maxAgeSeconds = jwtExpirationMs > 0 ? (jwtExpirationMs / 1000L) : 24 * 60 * 60L;
+        return ResponseCookie.from(jwtCookie, jwt)
+                .path("/api")
+                .maxAge(maxAgeSeconds)
+                .httpOnly(true)
+                .secure(false) // set to true in production (HTTPS)
+                .sameSite("Lax")
+                .build();
     }
 
     public ResponseCookie generateCleanCookie() {
-        return ResponseCookie.from(jwtCookie, null).path("/api").build();
+        return ResponseCookie.from(jwtCookie, "")
+                .path("/api")
+                .maxAge(0)
+                .httpOnly(true)
+                .build();
     }
 
     public String generateTokenFromUsername(String username) {
-        return Jwts.builder().subject(username).issuedAt(new Date())
-                .expiration(new Date((new Date()).getTime() + jwtExpirationMs)).signWith(key()).compact();
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(key())
+                .compact();
     }
 
     public String getUserNameFromJwtToken(String token) {
-        return Jwts.parser().verifyWith((SecretKey) key()).build().parseSignedClaims(token).getPayload().getSubject();
+        Claims claims = Jwts.parser()
+                .setSigningKey(key())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getSubject();
     }
 
     private Key key() {
@@ -65,8 +96,7 @@ public class JwtUtils {
 
     public boolean validateJwtToken(String authToken) {
         try {
-            log.info("Validate");
-            Jwts.parser().verifyWith((SecretKey) key()).build().parseSignedClaims(authToken);
+            Jwts.parser().setSigningKey(key()).build().parseClaimsJws(authToken);
             return true;
         } catch (MalformedJwtException e) {
             log.error("Invalid JWT token: {}", e.getMessage());
@@ -76,6 +106,8 @@ public class JwtUtils {
             log.error("JWT token is unsupported: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
             log.error("JWT claims string is empty: {}", e.getMessage());
+        } catch (JwtException e) {
+            log.error("JWT processing error: {}", e.getMessage());
         }
         return false;
     }
