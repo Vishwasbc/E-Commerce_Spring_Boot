@@ -16,7 +16,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
+import org.springframework.util.StringUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
@@ -42,11 +44,15 @@ public class JwtUtils {
         }
     }
 
-    //Change for Swagger
+    // Change for Swagger and other clients: accept Authorization header with or without "Bearer " prefix
     public String getJwtFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+        if (StringUtils.hasText(bearerToken)) {
+            String token = bearerToken.trim();
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7).trim();
+            }
+            return token;
         } else {
             return null;
         }
@@ -91,19 +97,27 @@ public class JwtUtils {
     }
 
     private Key key() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+        // Jwt secret can be provided as base64-encoded or as a raw string.
+        // Try base64 decode first; if it fails, use UTF-8 bytes of the provided secret.
+        try {
+            byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+            return Keys.hmacShaKeyFor(keyBytes);
+        } catch (IllegalArgumentException e) {
+            // Not valid base64; fall back to raw bytes
+            return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        }
     }
 
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parser().setSigningKey(key()).build().parseClaimsJws(authToken);
             return true;
-        } catch (MalformedJwtException e) {
-            log.error("Invalid JWT token: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
             log.error("JWT token is expired: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
             log.error("JWT token is unsupported: {}", e.getMessage());
+        } catch (MalformedJwtException e) {
+            log.error("Invalid JWT token: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
             log.error("JWT claims string is empty: {}", e.getMessage());
         } catch (JwtException e) {

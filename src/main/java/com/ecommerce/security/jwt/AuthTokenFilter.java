@@ -57,7 +57,14 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private String parseJwt(HttpServletRequest request) {
 
-        // Prefer cookie
+        // First try Authorization header (preferred for APIs / Swagger)
+        String jwtFromHeader = jwtUtils.getJwtFromHeader(request);
+        if (StringUtils.hasText(jwtFromHeader)) {
+            log.debug("JWT obtained from Authorization header for URI: {}", request.getRequestURI());
+            return jwtFromHeader.trim();
+        }
+
+        // Fallback to cookie (useful for browser clients)
         String jwtFromCookies = jwtUtils.getJwtFromCookies(request);
         if (StringUtils.hasText(jwtFromCookies)) {
             String token = jwtFromCookies.trim();
@@ -69,13 +76,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             return token;
         }
 
-        // Fallback to Authorization header (for Swagger )
-        String jwtFromHeader = jwtUtils.getJwtFromHeader(request);
-        if (StringUtils.hasText(jwtFromHeader)) {
-            log.debug("JWT obtained from Authorization header for URI: {}", request.getRequestURI());
-            return jwtFromHeader.trim();
-        }
-
+        log.debug("No JWT token found for URI: {}", request.getRequestURI());
         return null;
     }
 }
