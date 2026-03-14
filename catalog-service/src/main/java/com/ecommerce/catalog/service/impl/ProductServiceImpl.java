@@ -1,6 +1,5 @@
 package com.ecommerce.catalog.service.impl;
 
-import com.ecommerce.catalog.config.AppConstants;
 import com.ecommerce.catalog.model.Category;
 import com.ecommerce.catalog.model.Product;
 import com.ecommerce.catalog.payload.ProductDTO;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @Lazy
@@ -137,7 +135,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO updateProductImage(Long productId, MultipartFile image) throws IOException {
+    public ProductDTO updateProductImage(Long productId, MultipartFile image) {
         throw new UnsupportedOperationException("Image upload not implemented in catalog-service yet");
     }
 }
