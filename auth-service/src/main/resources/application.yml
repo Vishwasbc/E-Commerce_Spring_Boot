@@ -1,0 +1,17 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: auth-service
+
+ecommerce:
+  jwt:
+    secret: change-me-in-prod
+    expiration-ms: 86400000
+
+spring:
+  app:
+    jwtSecret: ${ecommerce.jwt.secret}
+    jwtExpirationMs: ${ecommerce.jwt.expiration-ms}
+    cookieName: jwt-cookie
